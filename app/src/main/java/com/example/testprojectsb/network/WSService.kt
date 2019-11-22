@@ -17,11 +17,11 @@ class WSService: IService {
     private var client: OkHttpClient? = OkHttpClient()
     private var ws: WebSocket? = null
 
-    private var tickerSubject: ReplaySubject<String> = ReplaySubject.createWithSize(1)
+    private var tickerSubject: ReplaySubject<Ticker> = ReplaySubject.createWithSize(1)
     private var bookOrderSubject: ReplaySubject<String> = ReplaySubject.createWithSize(1)
     private var outputSubject: ReplaySubject<String> = ReplaySubject.createWithSize(1)
 
-    override fun subscribeToTickerUpdates(): Observable<String> {
+    override fun subscribeToTickerUpdates(): Observable<Ticker> {
         return tickerSubject.observeOn(AndroidSchedulers.mainThread())
     }
 
@@ -40,14 +40,14 @@ class WSService: IService {
     val NORMAL_CLOSURE_STATUS = 1000
 
     override fun fetchData() {
-        ws?.cancel()
-        ws?.close(NORMAL_CLOSURE_STATUS, null)
-        ws = null
-
+        client = OkHttpClient()
         val request = Request.Builder().url("wss://api-pub.bitfinex.com/ws/2").build()
         ws = client!!.newWebSocket(request, EchoWebSocketListener())
-
         client!!.dispatcher().executorService().shutdown()
+    }
+
+    override fun stopData() {
+        ws?.close(NORMAL_CLOSURE_STATUS, null)
     }
 
     private inner class EchoWebSocketListener : WebSocketListener() {
@@ -70,7 +70,6 @@ class WSService: IService {
                 when {
                     tempList.first() == "\"hb\"" -> return
                     channelId == tickerChannelId -> {
-                        Log.d(TAG,"onMessage ticker - " + text)
                         val lastPrice= tempList[6].toDouble()
                         val volume  = tempList[7].toDouble()
                         val high = tempList[8].toDouble()
@@ -79,12 +78,7 @@ class WSService: IService {
                         val dailyChangePercentage = tempList[5].toDouble()
                         val volumeValue = lastPrice.toBigDecimal().multiply(volume.toBigDecimal())
                         val ticker = Ticker(volumeValue, lastPrice, low, high, dailyChange, dailyChangePercentage)
-                        tickerSubject.onNext("lastPrice: ${ticker.lastPrice} \n" +
-                                "low: ${ticker.low} \n" +
-                                "high: ${ticker.high} \n" +
-                                "volume: ${ticker.volume}\n" +
-                                "dailyChange: ${ticker.dailyChange}\n" +
-                                "dailyChangePercentage: ${ticker.dailyChangePercentage}")
+                        tickerSubject.onNext(ticker)
                     }
                     else -> bookOrderSubject.onNext(text + " -- ${tempList.size}")
                 }

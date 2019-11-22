@@ -3,6 +3,7 @@ package com.example.testprojectsb
 import androidx.lifecycle.ViewModel
 import com.example.testprojectsb.network.IService
 import com.example.testprojectsb.network.WSService
+import com.example.testprojectsb.network.model.Ticker
 import io.reactivex.Observable
 
 /**
@@ -17,7 +18,11 @@ class BTCUSDViewModel: ViewModel() {
         service.fetchData()
     }
 
-    fun subscribeToTickerUpdates(): Observable<String> {
+    fun stopData() {
+        service.stopData()
+    }
+
+    fun subscribeToTickerUpdates(): Observable<Ticker> {
         return service.subscribeToTickerUpdates()
     }
 
