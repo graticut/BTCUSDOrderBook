@@ -1,9 +1,0 @@
-syntax = "proto3";
-package tutorial;
-//"mid":"8137.45","bid":"8137.2","ask":"8137.7","last_price":"8138.7","low":"8051.7","high":"8271.4","volume":"4357.080660170000026","timestamp":"1574189517.6407158"
-message Item {
-    string protocol = 1;
-    string code = 2;
-    string message = 3;
-    string url = 4;
-}
