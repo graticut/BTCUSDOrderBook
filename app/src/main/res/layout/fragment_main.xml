@@ -1,164 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#4D4C4C"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="@dimen/margin_default"
-        tools:context="MainActivity">
-        <ImageView
-            android:id="@+id/logo"
-            android:layout_width="@dimen/logo_width"
-            android:layout_height="@dimen/logo_height"
-            android:src="@drawable/bitcoin_logo"
-            android:padding="@dimen/margin_half"
-            android:scaleType="centerInside"
-            app:layout_constraintTop_toTopOf="parent"/>
-        <LinearLayout
-            android:id="@+id/leftPanel"
-            android:layout_width="0dp"
-            android:layout_height="100dp"
-            android:padding="@dimen/margin_half"
-            android:orientation="vertical"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintLeft_toRightOf="@+id/logo"
-            app:layout_constraintBottom_toBottomOf="@+id/logo"
-            app:layout_constraintRight_toLeftOf="@+id/rightPanel">
-            <TextView
-                android:id="@+id/title"
-                style="@style/BaseTextViewTitle"
-                android:layout_height="0dp"
-                android:layout_weight="2"
-                app:layout_constraintTop_toBottomOf="@id/book_output_title"
-                android:text="BTC/USD"
-                android:textStyle="bold"/>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1">
-                <TextView
-                    android:id="@+id/volume_title"
-                    style="@style/BaseTextView"
-                    app:layout_constraintTop_toBottomOf="@id/book_output_title"
-                    android:text="VOL:"
-                    android:textStyle="bold"/>
-                <TextView
-                    android:id="@+id/volume_content"
-                    style="@style/BaseTextView"
-                    android:paddingLeft="@dimen/margin_default"
-                    app:layout_constraintTop_toBottomOf="@id/book_output_title"/>
-            </LinearLayout>
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".ui.MainActivity">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1">
-                <TextView
-                    android:id="@+id/low_title"
-                    style="@style/BaseTextView"
-                    app:layout_constraintTop_toBottomOf="@id/book_output_title"
-                    android:text="LOW: "
-                    android:textStyle="bold"/>
-                <TextView
-                    android:id="@+id/low_content"
-                    style="@style/BaseTextView"
-                    android:paddingLeft="@dimen/margin_default"
-                    app:layout_constraintTop_toBottomOf="@id/book_output_title"/>
-            </LinearLayout>
+    <include layout="@layout/ticker_layout" android:id="@+id/ticker_layout"/>
 
-        </LinearLayout>
-        <LinearLayout
-            android:id="@+id/rightPanel"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:orientation="vertical"
-            android:padding="@dimen/margin_half"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintLeft_toRightOf="@+id/leftPanel"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintBottom_toBottomOf="@+id/logo">
-            <TextView
-                android:id="@+id/last_value"
-                style="@style/BaseTextViewTitle"
-                android:layout_height="0dp"
-                android:layout_weight="2"
-                app:layout_constraintTop_toBottomOf="@id/book_output_title"
-                android:textStyle="bold"/>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1">
-                <TextView
-                    android:id="@+id/daily_change"
-                    style="@style/BaseTextView"/>
-                <ImageView
-                    android:id="@+id/arrow"
-                    style="@style/BaseTextView"
-                    android:visibility="gone"
-                    android:src="@drawable/arrow_down"/>
-                <TextView
-                    android:id="@+id/daily_change_percentage"
-                    style="@style/BaseTextView"
-                    app:layout_constraintTop_toBottomOf="@id/book_output_title"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1">
-                <TextView
-                    android:id="@+id/high_title"
-                    style="@style/BaseTextView"
-                    app:layout_constraintTop_toBottomOf="@id/book_output_title"
-                    android:text="HIGH: "
-                    android:textStyle="bold"/>
-                <TextView
-                    android:id="@+id/high_content"
-                    style="@style/BaseTextView"
-                    android:paddingLeft="@dimen/margin_default"
-                    app:layout_constraintTop_toBottomOf="@id/book_output_title"/>
-            </LinearLayout>
-
-        </LinearLayout>
-        <Button
-            android:id="@+id/start"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@+id/logo"
-            android:layout_centerHorizontal="true"
-            android:text="Start"
-            android:layout_marginTop="16dp"
-            android:textSize="17sp"/>
-        <Button
-            android:id="@+id/stop"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@+id/logo"
-            app:layout_constraintLeft_toRightOf="@+id/start"
-            android:layout_centerHorizontal="true"
-            android:text="Stop"
-            android:layout_marginTop="16dp"
-            android:textSize="17sp"/>
-        <TextView
-            android:id="@+id/book_output_title"
-            style="@style/BaseTextView"
-            app:layout_constraintTop_toBottomOf="@id/start"
-            android:textStyle="bold"
-            android:text="book output"/>
-        <TextView
-            android:id="@+id/book_output"
-            style="@style/BaseTextView"
-            app:layout_constraintTop_toBottomOf="@id/book_output_title"
-            android:textStyle="bold"/>
+    <Button
+        android:id="@+id/start"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/ticker_layout"
+        android:layout_centerHorizontal="true"
+        android:text="ON"
+        android:textSize="17sp"/>
+    <Button
+        android:id="@+id/stop"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/ticker_layout"
+        app:layout_constraintLeft_toRightOf="@+id/start"
+        android:layout_centerHorizontal="true"
+        android:text="OFF"
+        android:textSize="17sp"/>
+    <ScrollView
+        android:id="@+id/output_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="@+id/start"
+        app:layout_constraintLeft_toRightOf="@+id/stop">
         <TextView
             android:id="@+id/output"
             style="@style/BaseTextView"
-            app:layout_constraintTop_toBottomOf="@id/book_output"
-            app:layout_constraintBottom_toBottomOf="parent"/>
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</ScrollView>
+            android:layout_height="100dp"/>
+    </ScrollView>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/order_book"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/order_book_bg"
+        app:layout_constraintTop_toBottomOf="@id/output_layout"
+        app:layout_constraintBottom_toBottomOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

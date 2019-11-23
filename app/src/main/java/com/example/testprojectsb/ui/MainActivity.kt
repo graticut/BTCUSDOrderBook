@@ -1,7 +1,8 @@
-package com.example.testprojectsb
+package com.example.testprojectsb.ui
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.example.testprojectsb.R
 
 /**
  * Created by grati on 11/19/2019.

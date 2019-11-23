@@ -1,6 +1,7 @@
 package com.example.testprojectsb.network
 
 import android.util.Log
+import com.example.testprojectsb.network.model.OrderBookItem
 import com.example.testprojectsb.network.model.Ticker
 import com.google.gson.Gson
 import io.reactivex.Observable
@@ -14,30 +15,19 @@ import okio.ByteString
  */
 class WSService: IService {
 
+    private val TAG = javaClass.simpleName
+
+    val NORMAL_CLOSURE_STATUS = 1000
+
     private var client: OkHttpClient? = OkHttpClient()
     private var ws: WebSocket? = null
 
     private var tickerSubject: ReplaySubject<Ticker> = ReplaySubject.createWithSize(1)
-    private var bookOrderSubject: ReplaySubject<String> = ReplaySubject.createWithSize(1)
+    private var orderBookSubject: ReplaySubject<List<OrderBookItem>> = ReplaySubject.createWithSize(1)
     private var outputSubject: ReplaySubject<String> = ReplaySubject.createWithSize(1)
-
-    override fun subscribeToTickerUpdates(): Observable<Ticker> {
-        return tickerSubject.observeOn(AndroidSchedulers.mainThread())
-    }
-
-    override fun subscribeToBookOrderUpdates(): Observable<String> {
-        return bookOrderSubject.observeOn(AndroidSchedulers.mainThread())
-    }
-    override fun subscribeToOutputUpdates(): Observable<String> {
-        return outputSubject.observeOn(AndroidSchedulers.mainThread())
-    }
-
-    private val TAG = javaClass.simpleName
 
     private var tickerChannelId = ""
     private var bookChannelId = ""
-
-    val NORMAL_CLOSURE_STATUS = 1000
 
     override fun fetchData() {
         client = OkHttpClient()
@@ -50,53 +40,61 @@ class WSService: IService {
         ws?.close(NORMAL_CLOSURE_STATUS, null)
     }
 
+    override fun subscribeToTickerUpdates(): Observable<Ticker> {
+        return tickerSubject.observeOn(AndroidSchedulers.mainThread())
+    }
+
+    override fun subscribeToBookOrderUpdates(): Observable<List<OrderBookItem>> {
+        return orderBookSubject.observeOn(AndroidSchedulers.mainThread())
+    }
+
+    override fun subscribeToOutputUpdates(): Observable<String> {
+        return outputSubject.observeOn(AndroidSchedulers.mainThread())
+    }
+
     private inner class EchoWebSocketListener : WebSocketListener() {
         override fun onOpen(webSocket: WebSocket?, response: Response?) {
-            outputSubject.onNext("onOpen Receiving : " + response!!)
+//            outputSubject.onNext("onOpen Receiving : " + response!!)
 
             val tickerRequest = TickerRequest("subscribe", "ticker", "tBTCUSD")
             val bookOrderRequest = BookOrderRequest("subscribe", "book", "tBTCUSD", "F1")
 
             webSocket!!.send(Gson().toJson(tickerRequest))
-//            webSocket.send(Gson().toJson(bookOrderRequest))
+            webSocket.send(Gson().toJson(bookOrderRequest))
         }
 
         override fun onMessage(webSocket: WebSocket?, text: String?) {
-            if (text?.startsWith("[")!!) {
-                val tempList = text.split(",").map {it.replace("[", "").replace("]","")}.toMutableList()
-                val channelId = tempList.first()
-                tempList.remove(channelId)
-
-                when {
-                    tempList.first() == "\"hb\"" -> return
-                    channelId == tickerChannelId -> {
-                        val lastPrice= tempList[6].toDouble()
-                        val volume  = tempList[7].toDouble()
-                        val high = tempList[8].toDouble()
-                        val low = tempList[9].toDouble()
-                        val dailyChange = tempList[4].toDouble()
-                        val dailyChangePercentage = tempList[5].toDouble()
-                        val volumeValue = lastPrice.toBigDecimal().multiply(volume.toBigDecimal())
-                        val ticker = Ticker(volumeValue, lastPrice, low, high, dailyChange, dailyChangePercentage)
-                        tickerSubject.onNext(ticker)
-                    }
-                    else -> bookOrderSubject.onNext(text + " -- ${tempList.size}")
-                }
-            } else {
-                outputSubject.onNext("Receiving : $text")
-                try {
-                    val element = Gson().fromJson(text, Element::class.java)
-                    if (element.event == "subscribed") {
-                        if ("ticker" == element.channel) {
-                            tickerChannelId = element.chanId
-                        } else if ("book" == element.channel) {
-                            bookChannelId = element.chanId
+            text?.let {
+                when (WSUtil.getMessageType(it, tickerChannelId, bookChannelId)) {
+                    MessageType.SUBSCRIBED -> {
+                        val element = Gson().fromJson(text, Element::class.java)
+                        if (element.event == "subscribed") {
+                            outputSubject.onNext("subs: ${element.channel}; chanId: ${element.chanId}")
+                            when {
+                                "ticker" == element.channel -> tickerChannelId = element.chanId
+                                "book" == element.channel -> bookChannelId = element.chanId
+                                else -> Log.w(TAG, "Unknown channel")
+                            }
+                        } else {
+                            Log.w(TAG, "probably a connection message")
                         }
                     }
-                } catch (exception: IllegalStateException) {
-                    Log.d(TAG, "event elements are over")
+                    MessageType.TICKER -> {
+                        tickerSubject.onNext(WSUtil.buildTicker(text))
+                    }
+                    MessageType.ORDERBOOK_SNAPSHOT -> {
+                        emitOrderBookSnapshot(text)
+                    }
+                    MessageType.ORDERBOOK -> {
+                        orderBookSubject.onNext(WSUtil.buildOrderBook(text))
+                    }
+                    else -> Log.w(TAG, "UNKNOWN data received")
                 }
             }
+        }
+
+        private fun emitOrderBookSnapshot(text: String) {
+            orderBookSubject.onNext(WSUtil.buildSnapshotOrderBooks(text))
         }
 
         override fun onMessage(webSocket: WebSocket?, bytes: ByteString) {

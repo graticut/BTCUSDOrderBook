@@ -1,8 +1,9 @@
-package com.example.testprojectsb
+package com.example.testprojectsb.ui
 
 import androidx.lifecycle.ViewModel
 import com.example.testprojectsb.network.IService
 import com.example.testprojectsb.network.WSService
+import com.example.testprojectsb.network.model.OrderBookItem
 import com.example.testprojectsb.network.model.Ticker
 import io.reactivex.Observable
 
@@ -26,7 +27,7 @@ class BTCUSDViewModel: ViewModel() {
         return service.subscribeToTickerUpdates()
     }
 
-    fun subscribeToBookOrderUpdates(): Observable<String> {
+    fun subscribeToBookOrderUpdates(): Observable<List<OrderBookItem>> {
         return service.subscribeToBookOrderUpdates()
     }
 

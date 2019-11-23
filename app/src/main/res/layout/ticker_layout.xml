@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/ticker_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintLeft_toLeftOf="parent"
+    app:layout_constraintRight_toRightOf="parent"
+    android:padding="@dimen/margin_default"
+    tools:showIn="@layout/fragment_main">
+
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="@dimen/logo_width"
+        android:layout_height="@dimen/logo_height"
+        android:src="@drawable/bitcoin_logo"
+        android:padding="@dimen/margin_half"
+        android:scaleType="centerInside"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/leftPanel"
+        android:layout_width="0dp"
+        android:layout_height="100dp"
+        android:padding="@dimen/margin_half"
+        android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/logo"
+        app:layout_constraintBottom_toBottomOf="@+id/logo"
+        app:layout_constraintRight_toLeftOf="@+id/rightPanel">
+
+        <TextView
+            android:id="@+id/title"
+            style="@style/BaseTextViewTitle"
+            android:layout_height="0dp"
+            android:layout_weight="2"
+            android:text="@string/ticker_title"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/volume_title"
+                style="@style/BaseTextView"
+                android:text="@string/volume_title"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/volume_content"
+                style="@style/BaseTextView"
+                android:paddingLeft="@dimen/margin_default" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/low_title"
+                style="@style/BaseTextView"
+                android:text="@string/low_title"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/low_content"
+                style="@style/BaseTextView"
+                android:paddingLeft="@dimen/margin_default" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/rightPanel"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:padding="@dimen/margin_half"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/leftPanel"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/logo">
+
+        <TextView
+            android:id="@+id/last_value"
+            style="@style/BaseTextViewTitle"
+            android:layout_height="0dp"
+            android:layout_weight="2"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/daily_change"
+                style="@style/BaseTextView" />
+
+            <ImageView
+                android:id="@+id/arrow"
+                style="@style/BaseTextView"
+                android:visibility="gone"
+                android:src="@drawable/arrow_down" />
+
+            <TextView
+                android:id="@+id/daily_change_percentage"
+                style="@style/BaseTextView" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/high_title"
+                style="@style/BaseTextView"
+                android:text="@string/high_title"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/high_content"
+                style="@style/BaseTextView"
+                android:paddingLeft="@dimen/margin_default" />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
