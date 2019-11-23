@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.testprojectsb.R
@@ -53,7 +54,14 @@ class MainFragment : Fragment() {
         stop.setOnClickListener {
             viewModel.stopData()
         }
-        viewModel.fetchData()
+        val connectionStateMonitor = ConnectionStateMonitor(context!!)
+        connectionStateMonitor.observe(this, Observer<Boolean> {
+            if (it) {
+                viewModel.fetchData()
+            } else {
+                viewModel.stopData()
+            }
+        })
     }
 
     override fun onDestroyView() {

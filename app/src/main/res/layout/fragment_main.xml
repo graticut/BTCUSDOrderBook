@@ -28,13 +28,12 @@
     <ScrollView
         android:id="@+id/output_layout"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="100dp"
         app:layout_constraintTop_toTopOf="@+id/start"
         app:layout_constraintLeft_toRightOf="@+id/stop">
         <TextView
             android:id="@+id/output"
-            style="@style/BaseTextView"
-            android:layout_height="100dp"/>
+            style="@style/BaseTextView"/>
     </ScrollView>
 
     <androidx.recyclerview.widget.RecyclerView

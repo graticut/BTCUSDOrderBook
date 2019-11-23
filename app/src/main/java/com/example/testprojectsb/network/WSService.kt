@@ -9,6 +9,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.subjects.ReplaySubject
 import okhttp3.*
 import okio.ByteString
+import java.util.*
 
 /**
  * Created by grati on 11/21/2019.
@@ -29,7 +30,17 @@ class WSService: IService {
     private var tickerChannelId = ""
     private var bookChannelId = ""
 
+    private var connectionRetries = 0
+    private val CONNECTION_RETRIES_LIMIT = 3
+
     override fun fetchData() {
+        Log.d(TAG, "fetchData")
+        connectionRetries = 0
+        startConnection()
+    }
+
+    private fun startConnection() {
+        Log.d(TAG, "startConnection")
         client = OkHttpClient()
         val request = Request.Builder().url("wss://api-pub.bitfinex.com/ws/2").build()
         ws = client!!.newWebSocket(request, EchoWebSocketListener())
@@ -37,6 +48,7 @@ class WSService: IService {
     }
 
     override fun stopData() {
+        Log.d(TAG, "stopData")
         ws?.close(NORMAL_CLOSURE_STATUS, null)
     }
 
@@ -54,7 +66,7 @@ class WSService: IService {
 
     private inner class EchoWebSocketListener : WebSocketListener() {
         override fun onOpen(webSocket: WebSocket?, response: Response?) {
-//            outputSubject.onNext("onOpen Receiving : " + response!!)
+            connectionRetries = 0
 
             val tickerRequest = TickerRequest("subscribe", "ticker", "tBTCUSD")
             val bookOrderRequest = BookOrderRequest("subscribe", "book", "tBTCUSD", "F1")
@@ -107,6 +119,17 @@ class WSService: IService {
         }
 
         override fun onFailure(webSocket: WebSocket?, t: Throwable, response: Response?) {
+            Log.d(TAG, "onFailure - ${t.message}")
+            if (connectionRetries < CONNECTION_RETRIES_LIMIT) {
+                Timer().schedule(object : TimerTask() {
+                    override fun run() {
+                        connectionRetries++
+                        stopData()
+                        startConnection()
+                    }
+                }, 1000)
+            }
+
             outputSubject.onNext("Error : " + t.message)
         }
     }
