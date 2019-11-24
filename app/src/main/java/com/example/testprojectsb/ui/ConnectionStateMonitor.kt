@@ -7,6 +7,8 @@ import androidx.lifecycle.LiveData
 
 
 /**
+ * Listens for any network connection changes and informs any listeners
+ *
  * Created by grati on 11/23/2019.
  */
 class ConnectionStateMonitor(mContext: Context) : LiveData<Boolean>() {

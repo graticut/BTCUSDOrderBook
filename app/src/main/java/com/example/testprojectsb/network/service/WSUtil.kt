@@ -1,7 +1,8 @@
-package com.example.testprojectsb.network
+package com.example.testprojectsb.network.service
 
 import android.util.Log
 import com.example.testprojectsb.network.model.OrderBookItem
+import com.example.testprojectsb.network.model.SubscribedItem
 import com.example.testprojectsb.network.model.Ticker
 import com.example.testprojectsb.network.model.Transaction
 import com.google.gson.Gson
@@ -25,15 +26,20 @@ object WSUtil {
 
     fun getMessageType(message: String, tickerChannelId: String, orderBookChannelId: String): MessageType {
         return if (!isDataMessage(message)) {
-            val element = Gson().fromJson(message, Element::class.java)
-            if (element.event == "subscribed") {
-                MessageType.SUBSCRIBED
-            } else {
-                MessageType.UNKNOWN
+            try {
+                val element = Gson().fromJson(message, SubscribedItem::class.java)
+                if (element.event == "subscribed") {
+                    MessageType.SUBSCRIBED
+                } else {
+                    MessageType.UNKNOWN
+                }
+            } catch (e: Exception) {
+                return MessageType.UNKNOWN
             }
-        } else if (messageArrayIs3D(message)) {
+
+        } else if (messageHasThreeArrays(message)) {
             MessageType.ORDERBOOK_SNAPSHOT
-        } else if (messageArrayIs2D(message)) {
+        } else if (messageHasTwoArrays(message)) {
             when (extractChannelId(message)) {
                 tickerChannelId -> MessageType.TICKER
                 orderBookChannelId -> MessageType.ORDERBOOK
@@ -44,17 +50,19 @@ object WSUtil {
         }
     }
 
-    private fun messageArrayIs2D(message: String) = message.endsWith("]]")
+    private fun messageHasTwoArrays(message: String) = message.endsWith("]]")
 
     private fun extractChannelId(message: String) =
         message.split(",").map { it.replace("[", "").replace("]", "") }.toMutableList().first()
 
-    private fun messageArrayIs3D(message: String) = message.endsWith("]]]")
+    private fun messageHasThreeArrays(message: String) = message.endsWith("]]]")
 
     private fun isDataMessage(message: String) = message.startsWith("[")
 
     fun buildTicker(text: String): Ticker {
-        val tickerDataList = clearArrayText(text).split(",").toMutableList()
+        val tickerDataList = filterChannelIdAndBrackets(
+            text
+        ).split(",").toMutableList()
         val lastPrice = tickerDataList[6].toDouble()
         val volume = tickerDataList[7].toDouble()
         val high = tickerDataList[8].toDouble()
@@ -65,16 +73,20 @@ object WSUtil {
         return Ticker(volumeValue, lastPrice, low, high, dailyChange, dailyChangePercentage)
     }
 
-    private fun clearArrayText(text: String): String {
+    private fun filterChannelIdAndBrackets(text: String): String {
         val newText = text.removePrefix("[").removeSuffix("]")
         return newText.split(",", limit = 2).last().removePrefix("[").removeSuffix("]")
     }
 
-    fun buildOrderBook(text: String): List<OrderBookItem> {
-        return buildOrderBookClearedArray(clearArrayText(text))
+    fun buildOrderBookFromRawMessage(text: String): List<OrderBookItem> {
+        return buildOrderBook(
+            filterChannelIdAndBrackets(
+                text
+            )
+        )
     }
 
-    private fun buildOrderBookClearedArray(text: String): List<OrderBookItem> {
+    private fun buildOrderBook(text: String): List<OrderBookItem> {
         updateTransactionLists(text)
         return getCurrentOrderBook()
     }
@@ -97,21 +109,25 @@ object WSUtil {
         val price = orderBookDataList[0].toDouble()
         val count = orderBookDataList[1].toDouble().toInt()
         val amount = orderBookDataList[2].toDouble()
+        val transaction = Transaction(price, amount)
         if (count > 0) {
-            val transaction = Transaction(price, amount, orderBookDataList[2])
-            if (amount > 0) {
-                bids.add(0, transaction)
+            if (transaction.amount > 0) {
+                updateTransactions(
+                    bids,
+                    transaction
+                )
             } else {
-                asks.add(0, transaction)
+                updateTransactions(
+                    asks,
+                    transaction
+                )
             }
         } else if (count == 0) {
-            when (amount) {
+            when (transaction.amount) {
                 1.0 -> {
-                    bids.removeIf { price == it.price }
-                }
+                    bids.removeIf { transaction.price == it.price }}
                 -1.0 -> {
-                    asks.removeIf { price == it.price }
-                }
+                    asks.removeIf { transaction.price == it.price }}
                 else -> Log.w(TAG, "Count is zero and amount is neither 1 nor -1")
             }
         } else {
@@ -119,11 +135,20 @@ object WSUtil {
         }
     }
 
+    private fun updateTransactions(currentTransactions: MutableList<Transaction>, newTransaction: Transaction) {
+        currentTransactions.removeIf {it.price == newTransaction.price}
+        currentTransactions.add(0, newTransaction)
+    }
+
     fun buildSnapshotOrderBooks(text: String): List<OrderBookItem> {
         val newText = text.removePrefix("[").removeSuffix("]")
         val arrayText = newText.split(",", limit = 2).last()
         val snapshotList= Gson().fromJson(arrayText, Array<Array<Double>>::class.java).toList()
-        snapshotList.forEach{ updateTransactionLists(it.joinToString()) }
+        snapshotList.forEach{
+            updateTransactionLists(
+                it.joinToString()
+            )
+        }
         return getCurrentOrderBook()
     }
 }
