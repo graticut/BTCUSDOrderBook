@@ -68,15 +68,11 @@ class WSService: IService {
         return orderBookSubject.observeOn(AndroidSchedulers.mainThread())
     }
 
-    override fun subscribeToOutputUpdates(): Observable<String> {
-        return outputSubject.observeOn(AndroidSchedulers.mainThread())
-    }
-
     inner class EchoWebSocketListener : WebSocketListener() {
         override fun onOpen(webSocket: WebSocket?, response: Response?) {
             connectionRetries = 0
 
-            val tickerRequest =WSRequest("ticker")
+            val tickerRequest = WSRequest("ticker")
             val bookOrderRequest = WSRequest("book")
 
             webSocket!!.send(Gson().toJson(tickerRequest))

@@ -9,6 +9,8 @@ import com.google.gson.Gson
 import kotlin.math.max
 
 /**
+ * Utility class for parsing messages from the server and building the model
+ *
  * Created by grati on 11/22/2019.
  */
 

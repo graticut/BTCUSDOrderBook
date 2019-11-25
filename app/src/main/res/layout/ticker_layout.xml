@@ -8,7 +8,7 @@
     app:layout_constraintTop_toTopOf="parent"
     app:layout_constraintLeft_toLeftOf="parent"
     app:layout_constraintRight_toRightOf="parent"
-    android:padding="@dimen/margin_default"
+    android:padding="@dimen/margin_half"
     tools:showIn="@layout/fragment_main">
 
     <ImageView
@@ -23,7 +23,8 @@
     <LinearLayout
         android:id="@+id/leftPanel"
         android:layout_width="0dp"
-        android:layout_height="100dp"
+        android:layout_height="0dp"
+        android:layout_marginLeft="@dimen/margin_default"
         android:padding="@dimen/margin_half"
         android:orientation="vertical"
         app:layout_constraintTop_toTopOf="parent"
@@ -33,7 +34,7 @@
 
         <TextView
             android:id="@+id/title"
-            style="@style/BaseTextViewTitle"
+            style="@style/BaseTextViewTitleLarge"
             android:layout_height="0dp"
             android:layout_weight="2"
             android:text="@string/ticker_title"
@@ -46,9 +47,8 @@
 
             <TextView
                 android:id="@+id/volume_title"
-                style="@style/BaseTextView"
-                android:text="@string/volume_title"
-                android:textStyle="bold" />
+                style="@style/BaseTextViewTitleBold"
+                android:text="@string/volume_title" />
 
             <TextView
                 android:id="@+id/volume_content"
@@ -63,9 +63,8 @@
 
             <TextView
                 android:id="@+id/low_title"
-                style="@style/BaseTextView"
-                android:text="@string/low_title"
-                android:textStyle="bold" />
+                style="@style/BaseTextViewTitleBold"
+                android:text="@string/low_title" />
 
             <TextView
                 android:id="@+id/low_content"
@@ -88,7 +87,8 @@
 
         <TextView
             android:id="@+id/last_value"
-            style="@style/BaseTextViewTitle"
+            style="@style/BaseTextViewTitleLarge"
+            android:textColor="@color/white"
             android:layout_height="0dp"
             android:layout_weight="2"
             android:textStyle="bold" />
@@ -120,9 +120,8 @@
 
             <TextView
                 android:id="@+id/high_title"
-                style="@style/BaseTextView"
-                android:text="@string/high_title"
-                android:textStyle="bold" />
+                style="@style/BaseTextViewTitleBold"
+                android:text="@string/high_title" />
 
             <TextView
                 android:id="@+id/high_content"

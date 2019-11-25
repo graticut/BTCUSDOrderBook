@@ -14,5 +14,4 @@ interface IService {
     fun subscribeToConnectionUpdates(): Observable<ConnectionState>
     fun subscribeToTickerUpdates(): Observable<Ticker>
     fun subscribeToBookOrderUpdates(): Observable<List<OrderBookItem>>
-    fun subscribeToOutputUpdates(): Observable<String>
 }

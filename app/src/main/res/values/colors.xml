@@ -8,4 +8,6 @@
     <color name="positive_color">#00AD00</color>
     <color name="order_book_bg">#383838</color>
     <color name="app_bg">#4D4C4C</color>
+<!--    <color name="title">#ffdd71</color>-->
+    <color name="title">#FFE18E</color>
 </resources>

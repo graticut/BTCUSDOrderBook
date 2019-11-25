@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -17,6 +18,9 @@ import com.example.testprojectsb.network.model.OrderBookItem
 import com.example.testprojectsb.network.model.Ticker
 import com.example.testprojectsb.network.service.ConnectionState
 import com.example.testprojectsb.network.service.WSService
+import com.example.testprojectsb.ui.viewmodel.OrderBookViewModel
+import com.example.testprojectsb.ui.viewmodel.ServiceConnectionViewModel
+import com.example.testprojectsb.ui.viewmodel.TickerViewModel
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.fragment_main.*
 import kotlinx.android.synthetic.main.ticker_layout.*
@@ -35,10 +39,21 @@ class MainFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
         val wsService = WSService()
-        orderBookViewModel = ViewModelProviders.of(this, viewModelFactory { OrderBookViewModel(wsService) }).get(OrderBookViewModel::class.java)
-        tickerViewModel = ViewModelProviders.of(this, viewModelFactory { TickerViewModel(wsService) }).get(TickerViewModel::class.java)
-        serviceConnectionViewModel = ViewModelProviders.of(this, viewModelFactory { ServiceConnectionViewModel(wsService) }).get(ServiceConnectionViewModel::class.java)
-
+        orderBookViewModel = ViewModelProviders.of(this, viewModelFactory {
+            OrderBookViewModel(
+                wsService
+            )
+        }).get(OrderBookViewModel::class.java)
+        tickerViewModel = ViewModelProviders.of(this, viewModelFactory {
+            TickerViewModel(
+                wsService
+            )
+        }).get(TickerViewModel::class.java)
+        serviceConnectionViewModel = ViewModelProviders.of(this, viewModelFactory {
+            ServiceConnectionViewModel(
+                wsService
+            )
+        }).get(ServiceConnectionViewModel::class.java)
         return inflater.inflate(R.layout.fragment_main, container, false)
     }
 
@@ -56,23 +71,16 @@ class MainFragment : Fragment() {
         subscriptions.add(tickerViewModel.subscribeToTickerUpdates().subscribe {
             updateTickerOutput(it)
         })
-        subscriptions.add(orderBookViewModel.subscribeToOutputUpdates().subscribe {
-            output(it)
-        })
-        start.setOnClickListener {
-            serviceConnectionViewModel.fetchData()
-        }
-        stop.setOnClickListener {
-            serviceConnectionViewModel.stopData()
-        }
 
         observeServiceConnectionChanges()
         serviceConnectionViewModel.subscribeToConnectionUpdates()
         val connectionStateMonitor = ConnectionStateMonitor(context!!)
         connectionStateMonitor.observe(this, Observer<Boolean> {
             if (it) {
+                Toast.makeText(context, "Connected", Toast.LENGTH_LONG).show()
                 serviceConnectionViewModel.fetchData()
             } else {
+                Toast.makeText(context, "Connection lost", Toast.LENGTH_LONG).show()
                 serviceConnectionViewModel.stopData()
             }
         })
@@ -110,11 +118,7 @@ class MainFragment : Fragment() {
         adapter.updateElements(orderBookItems)
     }
 
-    private fun output(txt: String) {
-        output!!.text = output!!.text.toString() + txt + "\n"
-    }
-
-    protected inline fun <VM : ViewModel> viewModelFactory(crossinline f: () -> VM) =
+    private inline fun <VM : ViewModel> viewModelFactory(crossinline f: () -> VM) =
         object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(aClass: Class<T>):T = f() as T
         }

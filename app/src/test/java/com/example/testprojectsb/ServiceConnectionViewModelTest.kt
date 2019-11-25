@@ -5,7 +5,7 @@ import androidx.lifecycle.Observer
 import com.example.testprojectsb.network.service.ConnectionState
 import com.example.testprojectsb.network.service.ConnectionType
 import com.example.testprojectsb.network.service.IService
-import com.example.testprojectsb.ui.ServiceConnectionViewModel
+import com.example.testprojectsb.ui.viewmodel.ServiceConnectionViewModel
 import io.reactivex.Observable
 import org.junit.Before
 import org.junit.Rule
@@ -30,7 +30,8 @@ class ServiceConnectionViewModelTest {
 
     @Before
     fun before() {
-        viewModelService = ServiceConnectionViewModel(service)
+        viewModelService =
+            ServiceConnectionViewModel(service)
         viewModelService.getToConnectionUpdates().observeForever(observer)
     }
 

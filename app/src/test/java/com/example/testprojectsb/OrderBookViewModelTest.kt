@@ -3,7 +3,7 @@ package com.example.testprojectsb
 import com.example.testprojectsb.network.model.OrderBookItem
 import com.example.testprojectsb.network.model.Transaction
 import com.example.testprojectsb.network.service.IService
-import com.example.testprojectsb.ui.OrderBookViewModel
+import com.example.testprojectsb.ui.viewmodel.OrderBookViewModel
 import io.reactivex.Observable
 import io.reactivex.observers.TestObserver
 import org.junit.Before

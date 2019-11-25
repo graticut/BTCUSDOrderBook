@@ -2,7 +2,7 @@ package com.example.testprojectsb
 
 import com.example.testprojectsb.network.model.Ticker
 import com.example.testprojectsb.network.service.IService
-import com.example.testprojectsb.ui.TickerViewModel
+import com.example.testprojectsb.ui.viewmodel.TickerViewModel
 import io.reactivex.Observable
 import io.reactivex.observers.TestObserver
 import org.junit.Before
