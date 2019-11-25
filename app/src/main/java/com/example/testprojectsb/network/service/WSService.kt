@@ -29,10 +29,12 @@ class WSService: IService {
     private var tickerSubject: ReplaySubject<Ticker> = ReplaySubject.createWithSize(1)
     private var orderBookSubject: ReplaySubject<List<OrderBookItem>> = ReplaySubject.createWithSize(1)
     private var connectivitySubject: ReplaySubject<ConnectionState> = ReplaySubject.createWithSize(1)
-    private var outputSubject: ReplaySubject<String> = ReplaySubject.createWithSize(1)
 
     private var tickerChannelId = ""
     private var bookChannelId = ""
+
+    private val orderBookBuilder = OrderBookBuilder()
+    private val tickerBuilder = TickerBuilder()
 
     var connectionRetries = 0
     private val CONNECTION_RETRIES_LIMIT = 3
@@ -86,7 +88,6 @@ class WSService: IService {
                     MessageType.SUBSCRIBED -> {
                         val element = Gson().fromJson(text, SubscribedItem::class.java)
                         if (element.event == "subscribed") {
-                            outputSubject.onNext("subs: ${element.channel}; chanId: ${element.chanId}")
                             when {
                                 "ticker" == element.channel -> {
                                     tickerChannelId = element.chanId
@@ -104,7 +105,7 @@ class WSService: IService {
                     }
                     MessageType.TICKER -> {
                         tickerSubject.onNext(
-                            WSUtil.buildTicker(
+                            tickerBuilder.buildTicker(
                                 text
                             )
                         )
@@ -114,7 +115,7 @@ class WSService: IService {
                     }
                     MessageType.ORDERBOOK -> {
                         orderBookSubject.onNext(
-                            WSUtil.buildOrderBookFromRawMessage(
+                            orderBookBuilder.buildOrderBookFromRawMessage(
                                 text
                             )
                         )
@@ -125,16 +126,15 @@ class WSService: IService {
         }
 
         private fun emitOrderBookSnapshot(text: String) {
-            orderBookSubject.onNext(WSUtil.buildSnapshotOrderBooks(text))
+            orderBookSubject.onNext(orderBookBuilder.buildSnapshotOrderBooks(text))
         }
 
         override fun onMessage(webSocket: WebSocket?, bytes: ByteString) {
-            outputSubject.onNext("Receiving bytes : " + bytes.hex())
+            Log.d(TAG, "Receiving bytes : ${bytes.hex()}")
         }
 
         override fun onClosing(webSocket: WebSocket, code: Int, reason: String?) {
             webSocket.close(NORMAL_CLOSURE_STATUS, null)
-            outputSubject.onNext("Closing : $code / $reason")
             connectivitySubject.onNext( ConnectionState(ConnectionType.CONNECTION_CLOSED, reason!!))
         }
 
@@ -150,8 +150,6 @@ class WSService: IService {
                     }
                 }, 1000)
             }
-
-            outputSubject.onNext("Error : " + t.message)
         }
     }
 }

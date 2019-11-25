@@ -1,6 +1,6 @@
 package com.example.testprojectsb
 
-import com.example.testprojectsb.network.service.WSUtil
+import com.example.testprojectsb.network.service.TickerBuilder
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -12,10 +12,12 @@ import org.mockito.junit.MockitoJUnitRunner
 @RunWith(MockitoJUnitRunner::class)
 class TickerTest {
 
+    val tickerBuilder = TickerBuilder()
+
     @Test
     fun givenTickerMessage_shouldReturnTickerObject() {
         val message = "[365478,[7341.2,29.64982408,7341.3,9.1323093,138.8128004,0.0193,7341.2128004,6636.32056508,7419.1,7141]]"
-        val ticker = WSUtil.buildTicker(message)
+        val ticker = tickerBuilder.buildTicker(message)
         assertEquals(ticker.lastPrice, 7341.2128004, 0.01)
         assertEquals(ticker.low, 7141.0, 0.01)
         assertEquals(ticker.high, 7419.1, 0.01)
