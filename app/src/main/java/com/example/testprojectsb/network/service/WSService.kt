@@ -76,6 +76,7 @@ class WSService: IService {
             val tickerRequest = WSRequest("ticker")
             val bookOrderRequest = WSRequest("book")
 
+            //We use the same socket to subscribe to the ticker and order book updates
             webSocket!!.send(Gson().toJson(tickerRequest))
             webSocket.send(Gson().toJson(bookOrderRequest))
             connectivitySubject.onNext(ConnectionState(ConnectionType.CONNECTED))

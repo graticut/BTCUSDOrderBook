@@ -20,6 +20,10 @@ class OrderBookViewModel(val service: IService, private val schedulerProvider: B
     private var asks: MutableList<Transaction> = mutableListOf()
     private var bids: MutableList<Transaction> = mutableListOf()
 
+    /**
+     * Subscribes to the service for Transaction results. Whenever a new transaction is received, the
+     * local lists are updated and the result is mapped to the current OrderBook
+     */
     fun subscribeToBookOrderUpdates(): Observable<List<OrderBookItem>> {
         return service.subscribeToTransactionUpdates()
             .subscribeOn(schedulerProvider.io()).observeOn(
@@ -30,6 +34,9 @@ class OrderBookViewModel(val service: IService, private val schedulerProvider: B
             }
     }
 
+    /**
+     * Decides how we update the transactions (ads/bids) based on the current transaction values
+     */
     private fun updateTransactionLists(transaction: Transaction) {
         if (transaction.count > 0) {
             if (transaction.amount > 0) {
@@ -48,6 +55,10 @@ class OrderBookViewModel(val service: IService, private val schedulerProvider: B
         }
     }
 
+    /**
+     * Generates a list of OrderBookItems based on the bids & asks. All the lists should have maximum 20 items.
+     * An OrderBookItem might have null value for the bid or the ask
+     */
     private fun getCurrentOrderBook(): MutableList<OrderBookItem> {
         val orderBookItems = mutableListOf<OrderBookItem>()
         if (bids.size > 20) bids = bids.subList(0, 20)
@@ -61,6 +72,10 @@ class OrderBookViewModel(val service: IService, private val schedulerProvider: B
         return orderBookItems
     }
 
+    /**
+     * Updates the ads/bids list. If a transaction with the same price already exists we update it by removing the
+     * existing element and adding the new one in the front.
+     */
     private fun updateTransactions(currentTransactions: MutableList<Transaction>, newTransaction: Transaction) {
         currentTransactions.removeIf {it.price == newTransaction.price}
         currentTransactions.add(0, newTransaction)

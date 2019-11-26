@@ -5,7 +5,10 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
 /**
- * Created by Paulina Sadowska on 16.05.2018.
+ * Helper class for easily switching the schedule for Rx operations.
+ *
+ * Created by grati on 11/21/2019.
+ *
  */
 interface BaseSchedulerProvider {
     fun io(): Scheduler

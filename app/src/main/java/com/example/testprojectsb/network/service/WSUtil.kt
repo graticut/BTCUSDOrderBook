@@ -16,6 +16,9 @@ enum class MessageType {
 
 object WSUtil {
 
+    /**
+     * Parses the message and returns a message type based on some conditions
+     */
     fun getMessageType(message: String, tickerChannelId: String, orderBookChannelId: String): MessageType {
         return if (!isDataMessage(message)) {
             try {
@@ -28,7 +31,6 @@ object WSUtil {
             } catch (e: Exception) {
                 return MessageType.UNKNOWN
             }
-
         } else if (messageHasThreeArrays(message)) {
             MessageType.ORDERBOOK_SNAPSHOT
         } else if (messageHasTwoArrays(message)) {
@@ -42,15 +44,27 @@ object WSUtil {
         }
     }
 
+    /**
+     * Checks if the message contains 2 arrays
+     */
     private fun messageHasTwoArrays(message: String) = message.endsWith("]]")
 
+    /**
+     * Splits the message using the ',' delimiter and strips the result from the brackets
+     */
     private fun extractChannelId(message: String) =
         message.split(",").map { it.replace("[", "").replace("]", "") }.toMutableList().first()
 
     private fun messageHasThreeArrays(message: String) = message.endsWith("]]]")
 
+    /**
+     * If the message is an array we consider it to be a data message (TICKER, ORDERBOOK, ORDERBOOK_SNAPSHOT)
+     */
     private fun isDataMessage(message: String) = message.startsWith("[")
 
+    /**
+     * Filters all the the brackets and filters the channel id. Ex: [123, [11.0,22.0,33.0]] -> 11.0,22.0,33.0
+     */
     fun filterChannelIdAndBrackets(text: String): String {
         val newText = text.removePrefix("[").removeSuffix("]").trim()
         return newText.split(",", limit = 2).last().trim().removePrefix("[").removeSuffix("]")
