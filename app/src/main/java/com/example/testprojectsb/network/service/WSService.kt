@@ -1,13 +1,12 @@
 package com.example.testprojectsb.network.service
 
 import android.util.Log
-import com.example.testprojectsb.network.model.OrderBookItem
 import com.example.testprojectsb.network.model.SubscribedItem
 import com.example.testprojectsb.network.model.Ticker
+import com.example.testprojectsb.network.model.Transaction
 import com.example.testprojectsb.network.requests.WSRequest
 import com.google.gson.Gson
 import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.subjects.ReplaySubject
 import okhttp3.*
 import okio.ByteString
@@ -27,7 +26,7 @@ class WSService: IService {
     var listener: EchoWebSocketListener = EchoWebSocketListener()
 
     private var tickerSubject: ReplaySubject<Ticker> = ReplaySubject.createWithSize(1)
-    private var orderBookSubject: ReplaySubject<List<OrderBookItem>> = ReplaySubject.createWithSize(1)
+    private var transactionSubject: ReplaySubject<Transaction> = ReplaySubject.createWithSize(1)
     private var connectivitySubject: ReplaySubject<ConnectionState> = ReplaySubject.createWithSize(1)
 
     private var tickerChannelId = ""
@@ -59,15 +58,15 @@ class WSService: IService {
     }
 
     override fun subscribeToConnectionUpdates(): Observable<ConnectionState> {
-        return connectivitySubject.observeOn(AndroidSchedulers.mainThread())
+        return connectivitySubject
     }
 
     override fun subscribeToTickerUpdates(): Observable<Ticker> {
-        return tickerSubject.observeOn(AndroidSchedulers.mainThread())
+        return tickerSubject
     }
 
-    override fun subscribeToBookOrderUpdates(): Observable<List<OrderBookItem>> {
-        return orderBookSubject.observeOn(AndroidSchedulers.mainThread())
+    override fun subscribeToTransactionUpdates(): Observable<Transaction> {
+        return transactionSubject
     }
 
     inner class EchoWebSocketListener : WebSocketListener() {
@@ -114,19 +113,17 @@ class WSService: IService {
                         emitOrderBookSnapshot(text)
                     }
                     MessageType.ORDERBOOK -> {
-                        orderBookSubject.onNext(
-                            orderBookBuilder.buildOrderBookFromRawMessage(
-                                text
-                            )
-                        )
+                        transactionSubject.onNext(orderBookBuilder.buildTransactionFromRawMessage(text))
                     }
-                    else -> Log.w(TAG, "UNKNOWN data received")
+                    else -> Log.w(TAG, "UNKNOWN data received: $text")
                 }
             }
         }
 
         private fun emitOrderBookSnapshot(text: String) {
-            orderBookSubject.onNext(orderBookBuilder.buildSnapshotOrderBooks(text))
+            orderBookBuilder.buildSnapshotTransactions(text).forEach{
+                transactionSubject.onNext(it)
+            }
         }
 
         override fun onMessage(webSocket: WebSocket?, bytes: ByteString) {

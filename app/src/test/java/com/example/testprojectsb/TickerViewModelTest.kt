@@ -3,11 +3,12 @@ package com.example.testprojectsb
 import com.example.testprojectsb.network.model.Ticker
 import com.example.testprojectsb.network.service.IService
 import com.example.testprojectsb.ui.viewmodel.TickerViewModel
+import com.example.testprojectsb.ui.viewmodel.TrampolineSchedulerProvider
 import io.reactivex.Observable
 import io.reactivex.observers.TestObserver
 import org.junit.Before
 import org.junit.Test
-import org.mockito.BDDMockito.*
+import org.mockito.BDDMockito.given
 import org.mockito.Mockito
 
 /**
@@ -17,10 +18,11 @@ class TickerViewModelTest {
 
     private var service = Mockito.mock(IService::class.java)
     private lateinit var viewModel: TickerViewModel
+    private var schedulerProvider = TrampolineSchedulerProvider()
 
     @Before
     fun before() {
-        viewModel = TickerViewModel(service)
+        viewModel = TickerViewModel(service, schedulerProvider)
     }
 
     @Test

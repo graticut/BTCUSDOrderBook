@@ -52,7 +52,7 @@ object WSUtil {
     private fun isDataMessage(message: String) = message.startsWith("[")
 
     fun filterChannelIdAndBrackets(text: String): String {
-        val newText = text.removePrefix("[").removeSuffix("]")
-        return newText.split(",", limit = 2).last().removePrefix("[").removeSuffix("]")
+        val newText = text.removePrefix("[").removeSuffix("]").trim()
+        return newText.split(",", limit = 2).last().trim().removePrefix("[").removeSuffix("]")
     }
 }

@@ -15,48 +15,23 @@ class OrderBookTest {
     private val builder = OrderBookBuilder()
 
     @Test
-    fun givenOrderBookMessage_shouldReturnOrderBookObject() {
-        //        Add first bid
-        var orderBook = builder.buildOrderBookFromRawMessage("[383136,[7000.0, 1, 1.1]]")
-        assertEquals(orderBook.size, 1)
-        assertNull(orderBook.first().ask)
-        //        Add first ask
-        orderBook = builder.buildOrderBookFromRawMessage("[383136,[8000.0, 1, -7.1]]")
-        assertEquals(orderBook.size, 1)
-        //        Add second ask
-        orderBook = builder.buildOrderBookFromRawMessage("[383136,[8001.0, 1, -2.1]]")
-        assertEquals(orderBook.size, 2)
-        //        First item should contain second added ask and the bid
-        assertEquals(orderBook.first().bid?.price, 7000.0)
-        assertEquals(orderBook.first().ask?.price, 8001.0)
-        //        Add second bid
-        orderBook = builder.buildOrderBookFromRawMessage("[383136,[7001.0, 1, 2.1]]")
-        assertEquals(orderBook.size, 2)
-        assertEquals(orderBook.first().bid?.price, 7001.0)
-        assertEquals(orderBook.first().ask?.price, 8001.0)
-        //        Add third bid
-        orderBook = builder.buildOrderBookFromRawMessage("[383136,[7002.0, 1, 12.1]]")
-        assertEquals(orderBook.size, 3)
-        assertNull(orderBook.last().ask)
-        assertEquals(orderBook.first().bid?.price, 7002.0)
-        assertEquals(orderBook.first().ask?.price, 8001.0)
-        //       Add third ask
-        orderBook = builder.buildOrderBookFromRawMessage("[383136,[8002.0, 1, -2.1]]")
-        assertEquals(orderBook.size, 3)
-        assertNotNull(orderBook.last().ask)
-        assertEquals(orderBook.first().bid?.price, 7002.0)
-        assertEquals(orderBook.first().ask?.price, 8002.0)
-        //        Remove a bid
-        orderBook = builder.buildOrderBookFromRawMessage("[383136,[7002.0, 0, 1.0]]")
-        assertEquals(orderBook.size, 3)
-        assertEquals(orderBook.filter { it.bid?.price ==  7002.0}.size, 0)
-        assertEquals(orderBook.first().bid?.price, 7001.0)
-        assertNull(orderBook.last().bid)
-        //        Remove an ask
-        orderBook = builder.buildOrderBookFromRawMessage("[383136,[8000.0, 0, -1.0]]")
-        assertEquals(orderBook.size, 2)
-        assertEquals(orderBook.filter { it.ask?.price ==  8000.0}.size, 0)
-        assertEquals(orderBook.last().ask?.price, 8001.0)
+    fun buildTransaction_success() {
+        val t = builder.buildTransactionFromRawMessage("[1,[7000.0, 1, 2.1]]")
+        assertEquals(t.price, 7000.0, 0.0)
+        assertEquals(t.amount, 2.1, 0.0)
+        assertEquals(t.count, 1)
+    }
+
+    @Test
+    fun buildSnapshotTransactions_success() {
+        val snapshots = builder.buildSnapshotTransactions("[1,[[7000.0, 1, 2.1], [8000.0, 2, -2.1]]]")
+        assertEquals(snapshots.size, 2)
+        assertEquals(snapshots[0].price, 7000.0, 0.0)
+        assertEquals(snapshots[0].amount, 2.1, 0.0)
+        assertEquals(snapshots[0].count, 1)
+        assertEquals(snapshots[1].price, 8000.0, 0.0)
+        assertEquals(snapshots[1].amount, -2.1, 0.0)
+        assertEquals(snapshots[1].count, 2)
     }
 
 }

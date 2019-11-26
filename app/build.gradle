@@ -5,6 +5,11 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 android {
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
     defaultConfig {

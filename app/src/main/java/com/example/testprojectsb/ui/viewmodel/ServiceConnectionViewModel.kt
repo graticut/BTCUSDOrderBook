@@ -13,7 +13,7 @@ import io.reactivex.disposables.CompositeDisposable
  *
  * Created by grati on 11/21/2019.
  */
-class ServiceConnectionViewModel(val service: IService): ViewModel() {
+class ServiceConnectionViewModel(val service: IService,  private val schedulerProvider: BaseSchedulerProvider = SchedulerProvider()): ViewModel() {
     private val TAG = javaClass.simpleName
 
     private val connectionType = MutableLiveData<ConnectionState>()
@@ -24,7 +24,10 @@ class ServiceConnectionViewModel(val service: IService): ViewModel() {
     }
 
     fun subscribeToConnectionUpdates() {
-        subscriptions?.add(service.subscribeToConnectionUpdates().subscribe ({
+        subscriptions?.add(service.subscribeToConnectionUpdates()
+            .subscribeOn(schedulerProvider.io())
+            .observeOn(schedulerProvider.ui())
+            .subscribe ({
             connectionType.postValue(it)
         }, {
             connectionType.postValue(ConnectionState(ConnectionType.ERROR, error = it))

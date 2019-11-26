@@ -10,9 +10,11 @@ import io.reactivex.Observable
  *
  * Created by grati on 11/21/2019.
  */
-class TickerViewModel(val service: IService): ViewModel() {
+class TickerViewModel(val service: IService, private val schedulerProvider: BaseSchedulerProvider = SchedulerProvider()): ViewModel() {
 
     fun subscribeToTickerUpdates(): Observable<Ticker> {
-        return service.subscribeToTickerUpdates()
+        return service.subscribeToTickerUpdates().
+            subscribeOn(schedulerProvider.io())
+            .observeOn(schedulerProvider.ui())
     }
 }

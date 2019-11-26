@@ -1,7 +1,7 @@
 package com.example.testprojectsb.network.service
 
-import com.example.testprojectsb.network.model.OrderBookItem
 import com.example.testprojectsb.network.model.Ticker
+import com.example.testprojectsb.network.model.Transaction
 import io.reactivex.Observable
 
 /**
@@ -13,5 +13,5 @@ interface IService {
     fun stopData()
     fun subscribeToConnectionUpdates(): Observable<ConnectionState>
     fun subscribeToTickerUpdates(): Observable<Ticker>
-    fun subscribeToBookOrderUpdates(): Observable<List<OrderBookItem>>
+    fun subscribeToTransactionUpdates(): Observable<Transaction>
 }
