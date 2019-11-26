@@ -58,8 +58,6 @@ class OrderBookViewModel(val service: IService, private val schedulerProvider: B
             val ask = if (i < asks.size) asks[i] else null
             orderBookItems.add(OrderBookItem(bid, ask))
         }
-
-        Log.d(TAG, "getCurrentOrderBook - asks.size: ${asks.size} -- bids.size: ${bids.size}")
         return orderBookItems
     }
 
