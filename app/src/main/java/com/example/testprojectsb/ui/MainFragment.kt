@@ -122,4 +122,9 @@ class MainFragment : Fragment() {
         object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(aClass: Class<T>):T = f() as T
         }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        serviceConnectionViewModel.stopData()
+    }
 }
